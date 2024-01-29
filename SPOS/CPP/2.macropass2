@@ -1,0 +1,118 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <sstream>
+using namespace std;
+
+class Pass2 {
+public:
+    vector<string> intermediateCode;
+    vector<pair<string, vector<int>>> mnt;
+    vector<pair<string, string>> kpdtab;
+    vector<string> mdt;
+    map<string, int> pptab1;
+
+    Pass2() {
+        fstream file;
+        file.open("output.txt", ios::in);
+
+        string line;
+        while (getline(file, line)) {
+            intermediateCode.push_back(line);
+        }
+
+        file.close();
+    }
+
+    void expandMacros() {
+        vector<string> outputCode;
+
+        for (string line : intermediateCode) {
+            istringstream iss(line);
+            vector<string> tokens{istream_iterator<string>{iss}, istream_iterator<string>{}};
+
+            if (tokens.size() > 0) {
+                string macroName = tokens[0];
+                if (isMacroDefined(macroName)) {
+                    expandMacro(line, macroName);
+                } else {
+                    outputCode.push_back(line);
+                }
+            }
+        }
+
+        // Output the expanded code
+        cout << "\nExpanded Code:\n";
+        for (string line : outputCode) {
+            cout << line << endl;
+        }
+    }
+
+private:
+    bool isMacroDefined(string macroName) {
+        for (auto macro : mnt) {
+            if (macro.first == macroName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void expandMacro(string line, string macroName) {
+        for (auto macro : mnt) {
+            if (macro.first == macroName) {
+                int ppCount = macro.second[0];
+                int kpCount = macro.second[1];
+                int mdtStart = macro.second[2];
+
+                vector<string> tokens = split(line);
+
+                // Replace formal parameters with actual arguments
+                for (int i = 1; i <= ppCount; ++i) {
+                    int pptabIndex = pptab1[charToString(tokens[i][1])];
+                    line.replace(line.find(tokens[i]), tokens[i].length(), tokens[pptabIndex + ppCount + 1]);
+                }
+
+                // Append keyword parameters with their default values
+                for (int i = 1; i <= kpCount; ++i) {
+                    line += " " + kpdtab[i - 1].second;
+                }
+
+                // Append the remaining part of MDT
+                for (int i = mdtStart; i < mdt.size(); ++i) {
+                    line += " " + mdt[i];
+                }
+
+                cout << "Expanded Line: " << line << endl;
+                break;
+            }
+        }
+    }
+
+    vector<string> split(string s) {
+        vector<string> ret;
+        string w = "";
+        for (int i = 0; i < s.length(); i++) {
+            if (s[i] == ' ') {
+                ret.push_back(w);
+                w = "";
+                continue;
+            }
+            w += s[i];
+        }
+        return ret;
+    }
+
+    string charToString(char c) {
+        string s = "";
+        s += c;
+        return s;
+    }
+};
+
+int main() {
+    Pass2 p;
+    p.expandMacros();
+    return 0;
+}

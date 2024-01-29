@@ -1,0 +1,112 @@
+javac B1.java
+javah B1
+
+sudo update-alternatives --config java
+export JAVA_HOME=/path/to/your/jdk change path to above obtained address
+source ~/.bashrc
+
+gcc -shared -o libB1.so -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" B1.c
+java -Djava.library.path=. B1
+
+
+
+javac B1.java
+
+java -Djava.ltbrary.path= .B1
+import java.io.*;
+import java.util.*;
+
+class B1 {
+
+     static {
+
+         System.loadLibrary("B1");
+
+     }
+
+     private native int add(int a, int b);
+
+     private native int sub(int a, int b);
+
+     private native int mult(int a, int b);
+
+     private native int div(int a, int b); 
+
+     public static void main(String[] args) {
+
+	Scanner sc=new Scanner(System.in);
+
+	int a, b,ch;
+
+	System.out.println("\nEnter value of a : ");
+
+	a = sc.nextInt();
+
+	System.out.println("\nEnter value of b : ");
+
+	b = sc.nextInt();
+
+	do
+
+	{
+
+		System.out.println("\nENTER YOUR CHOICE : ");
+
+		ch = sc.nextInt();
+		switch(ch)
+
+		{
+			case 1 : new B1().add(a,b);
+
+				 break;
+			case 2 : new B1().sub(a,b);
+
+				 break;
+			case 3 : new B1().mult(a,b);
+
+				 break;
+			case 4 : new B1().div(a,b);
+
+				 break;
+			default : System.out.println("Your choice is wrong.");
+
+		}
+
+	}while(ch<5);
+
+  }
+
+}
+
+
+
+c 
+
+#include <jni.h>
+#include <stdio.h>
+#include "B1.h"
+
+JNIEXPORT jint JNICALL Java_B1_add(JNIEnv *env, jobject obj, jint a, jint b) {
+    printf("\n%d + %d = %d\n", a, b, (a + b));
+    return 0;  // Return a value of type jint
+}
+
+JNIEXPORT jint JNICALL Java_B1_sub(JNIEnv *env, jobject obj, jint a, jint b) {
+    printf("\n%d - %d = %d\n", a, b, (a - b));
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_B1_mult(JNIEnv *env, jobject obj, jint a, jint b) {
+    printf("\n%d * %d = %d\n", a, b, (a * b));
+    return 0;
+}
+
+JNIEXPORT jint JNICALL Java_B1_div(JNIEnv *env, jobject obj, jint a, jint b) {
+    if (b != 0) {
+        printf("\n%d / %d = %d\n", a, b, (a / b));
+    } else {
+        printf("\nCannot divide by zero.\n");
+    }
+    return 0;
+}
+

@@ -1,0 +1,60 @@
+g++ -o my_program my_program.cpp -lpthread -lrt
+`
+
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <mutex>
+#include <condition_variable>
+#include <semaphore.h>
+
+const int BUFFER_SIZE = 5;
+const int NUM_ITEMS = 10;
+
+std::vector<int> buffer(BUFFER_SIZE);
+std::mutex mtx;
+sem_t empty, full;
+
+void producer(int id) {
+    for (int i = 0; i < NUM_ITEMS; i++) {
+        sem_wait(&empty);  // Wait if the buffer is full
+
+        std::lock_guard<std::mutex> lock(mtx);
+        buffer[i % BUFFER_SIZE] = i;  // Produce an item
+        std::cout << "Producer " << id << " produced item " << i << std::endl;
+
+        sem_post(&full);  // Signal that the buffer is not empty
+    }
+}
+
+void consumer(int id) {
+    for (int i = 0; i < NUM_ITEMS; i++) {
+        sem_wait(&full);  // Wait if the buffer is empty
+
+        std::lock_guard<std::mutex> lock(mtx);
+        int item = buffer[i % BUFFER_SIZE];  // Consume an item
+        std::cout << "Consumer " << id << " consumed item " << item << std::endl;
+
+        sem_post(&empty);  // Signal that the buffer is not full
+    }
+}
+
+int main() {
+    sem_init(&empty, 0, BUFFER_SIZE);
+    sem_init(&full, 0, 0);
+
+    std::thread producer1(producer, 1);
+    std::thread producer2(producer, 2);
+    std::thread consumer1(consumer, 1);
+    std::thread consumer2(consumer, 2);
+
+    producer1.join();
+    producer2.join();
+    consumer1.join();
+    consumer2.join();
+
+    sem_destroy(&empty);
+    sem_destroy(&full);
+
+    return 0;
+}
