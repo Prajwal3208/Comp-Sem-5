@@ -1,0 +1,94 @@
+# 1.Find the names of all branches in the loan relation.
+
+SELECT DISTINCT BName FROM Loan;
+
+# 2.Find all loan numbers for loans made at the Akurdi Branch with a loan amount greater than 12000.
+
+SELECT Loan_no FROM Loan WHERE BName = 'AKURDI' AND Amount > 12000;
+
+# 3.Find all customers who have a loan from the bank. Find their names, loan_no, and loan amount.
+
+select a.CName, a.Loan_no, b.Amount 
+from Borrower as a 
+join Loan as b 
+on a.Loan_no=b.Loan_no;
+
+# 4.List all customers in alphabetical order who have a loan from the Akurdi branch.
+ 
+SELECT C.CName
+FROM Borrower AS B
+JOIN Customer AS C ON B.CName = C.CName
+WHERE B.Loan_no IN (SELECT Loan_no FROM Loan WHERE BName = 'AKURDI')
+ORDER BY C.CName;
+
+# 5.Find all customers who have an account or loan or both at the bank.
+
+SELECT DISTINCT C.CName
+FROM Customer AS C
+LEFT JOIN Depositor AS D ON C.CName = D.CName
+LEFT JOIN Borrower AS B ON C.CName = B.CName
+WHERE D.CName IS NOT NULL OR B.CName IS NOT NULL;
+
+# 6.Find all customers who have both an account and a loan at the bank.
+
+SELECT DISTINCT C.CName
+FROM Customer AS C
+JOIN Depositor AS D ON C.CName = D.CName
+JOIN Borrower AS B ON C.CName = B.CName;
+
+# 7.Find all customers who have an account but no loan at the bank.
+
+SELECT DISTINCT C.CName
+FROM Customer AS C
+LEFT JOIN Depositor AS D ON C.CName = D.CName
+WHERE D.CName IS NOT NULL
+AND C.CName NOT IN (SELECT CName FROM Borrower);
+
+# 8.Find the average account balance at each branch.
+
+SELECT BName, AVG(Balance) AS AvgBalance
+FROM Account
+GROUP BY BName;
+# 9.Find the number of depositors at each branch.
+
+SELECT BName, COUNT(DISTINCT CName) AS NumDepositors
+FROM Depositor
+GROUP BY BName;
+
+# 10.Find the name of the Customer and the city where the customer name starts with the letter P.
+ 
+SELECT CName, CCity
+FROM Customer
+WHERE CName LIKE 'P%';
+
+# 11.Display distinct cities of branches.
+
+SELECT DISTINCT BCity
+FROM Branch;
+
+# 12.Find the branches where the average account balance is greater than 12000.
+ 
+SELECT BName
+FROM Account
+GROUP BY BName
+HAVING AVG(Balance) > 12000;
+
+# 13.Find the number of tuples in the customer relation.
+
+SELECT COUNT(*) AS NumTuples
+FROM Customer;
+
+# 14.Calculate the total loan amount given by the bank.
+
+SELECT SUM(Amount) AS TotalLoanAmount
+FROM Loan;
+
+# 15.Delete all loans with a loan amount between 1300 and 1500.
+
+DELETE FROM Loan
+WHERE Amount BETWEEN 1300 AND 1500;
+
+# 16.Delete all tuples at every branch located in Nigdi.
+
+DELETE FROM Branch
+WHERE BCity = 'NIGDI';

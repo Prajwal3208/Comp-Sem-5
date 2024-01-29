@@ -1,0 +1,176 @@
+createCollection("Employee")
+
+use Employee
+
+db.Employee.insertMany([
+  {
+    Empid: 1,
+    Name: { FName: "John", LName: "Doe" },
+    CompanyName: "ABC Inc",
+    Salary: 35000,
+    Designation: "Programmer",
+    Age: 28,
+    Expertise: ["Java", "Python"],
+    DOB: "1995-05-15",
+    EmailId: "john.doe@example.com",
+    Contact: "123-456-7890",
+    Address: [{ PAddr: "123 Main St", LAddr: "Apt 45" }]
+  },
+  {
+    Empid: 2,
+    Name: { FName: "Jane", LName: "Smith" },
+    CompanyName: "XYZ Corp",
+    Salary: 42000,
+    Designation: "Tester",
+    Age: 25,
+    Expertise: ["Testing", "Automation"],
+    DOB: "1998-08-20",
+    EmailId: "jane.smith@example.com",
+    Contact: "456-789-1234",
+    Address: [{ PAddr: "456 Oak St", LAddr: "Unit 12" }]
+  },
+  {
+    Empid: 3,
+    Name: { FName: "Michael", LName: "Johnson" },
+    CompanyName: "TCS",
+    Salary: 28000,
+    Designation: "Programmer",
+    Age: 30,
+    Expertise: ["Java", "JavaScript"],
+    DOB: "1993-03-10",
+    EmailId: "michael.johnson@example.com",
+    Contact: "789-123-4567",
+    Address: [{ PAddr: "789 Elm St", LAddr: "Suite 5" }]
+  },
+  {
+    Empid: 4,
+    Name: { FName: "Emily", LName: "Brown" },
+    CompanyName: "Infosys",
+    Salary: 38000,
+    Designation: "Developer",
+    Age: 27,
+    Expertise: ["Python", "Django"],
+    DOB: "1996-07-05",
+    EmailId: "emily.brown@example.com",
+    Contact: "234-567-8901",
+    Address: [{ PAddr: "567 Maple St", LAddr: "Apt 20" }]
+  },
+  {
+    Empid: 5,
+    Name: { FName: "David", LName: "Wilson" },
+    CompanyName: "IBM",
+    Salary: 45000,
+    Designation: "Tester",
+    Age: 26,
+    Expertise: ["Testing", "Selenium"],
+    DOB: "1997-12-12",
+    EmailId: "david.wilson@example.com",
+    Contact: "345-678-9012",
+    Address: [{ PAddr: "678 Birch St", LAddr: "Unit 8" }]
+  },
+  {
+    Empid: 6,
+    Name: { FName: "Sarah", LName: "Davis" },
+    CompanyName: "ABC Inc",
+    Salary: 32000,
+    Designation: "Programmer",
+    Age: 29,
+    Expertise: ["C#", "ASP.NET"],
+    DOB: "1994-04-25",
+    EmailId: "sarah.davis@example.com",
+    Contact: "456-789-0123",
+    Address: [{ PAddr: "890 Cedar St", LAddr: "Suite 15" }]
+  },
+  {
+    Empid: 7,
+    Name: { FName: "William", LName: "Miller" },
+    CompanyName: "TCS",
+    Salary: 31000,
+    Designation: "Developer",
+    Age: 31,
+    Expertise: ["Java", "Spring"],
+    DOB: "1992-02-18",
+    EmailId: "william.miller@example.com",
+    Contact: "567-890-1234",
+    Address: [{ PAddr: "123 Pine St", LAddr: "Apt 3" }]
+  },
+  {
+    Empid: 8,
+    Name: { FName: "Olivia", LName: "Martinez" },
+    CompanyName: "Infosys",
+    Salary: 40000,
+    Designation: "Tester",
+    Age: 24,
+    Expertise: ["Testing", "LoadRunner"],
+    DOB: "1999-09-30",
+    EmailId: "olivia.martinez@example.com",
+    Contact: "678-901-2345",
+    Address: [{ PAddr: "234 Walnut St", LAddr: "Unit 10" }]
+  },
+  {
+    Empid: 9,
+    Name: { FName: "James", LName: "Garcia" },
+    CompanyName: "IBM",
+    Salary: 50000,
+    Designation: "Programmer",
+    Age: 29,
+    Expertise: ["Python", "Django"],
+    DOB: "1994-03-05",
+    EmailId: "james.garcia@example.com",
+    Contact: "789-012-3456",
+    Address: [{ PAddr: "456 Oak St", LAddr: "Suite 7" }]
+  },
+  {
+    Empid: 10,
+    Name: { FName: "Sophia", LName: "Lopez" },
+    CompanyName: "XYZ Corp",
+    Salary: 34000,
+    Designation: "Tester",
+    Age: 28,
+    Expertise: ["Testing", "Selenium"],
+    DOB: "1995-06-15",
+    EmailId: "sophia.lopez@example.com",
+    Contact: "890-123-4567",
+    Address: [{ PAddr: "567 Elm St", LAddr: "Apt 4" }]
+  }
+])
+
+# Select all documents where Designation is "Programmer" and Salary is greater than 30000:
+db.Employee.find({ Designation: "Programmer", Salary: { $gt: 30000 } })
+
+# Create a new document if none contains {Designation: "Tester", CompanyName: "TCS", Age: 25}:
+db.Employee.updateOne(
+  { Designation: "Tester", CompanyName: "TCS", Age: 25 },
+  {
+    $setOnInsert: {
+      // Define the fields for the new document
+    }
+  },
+  { upsert: true }
+)
+
+# Select all documents where Age is less than 30 or Salary is greater than 40000:
+db.Employee.find({ $or: [{ Age: { $lt: 30 } }, { Salary: { $gt: 40000 } }] })
+
+# Match all documents where Address contains an embedded document with city "Pune" and Pin_code "411001":
+db.Employee.find({ "Address.city": "Pune", "Address.Pin_code": "411001" })
+
+# Find and modify salary for documents with CompanyName "TCS":
+db.Employee.updateMany({ CompanyName: "TCS" }, { $inc: { Salary: 2000 } })
+
+# Find documents where Designation is not equal to "Developer":
+db.Employee.find({ Designation: { $ne: "Developer" } })
+
+# Select _id, Designation, Address, and Name from documents with CompanyName "Infosys":
+db.Employee.find({ CompanyName: "Infosys" }, { _id: 1, Designation: 1, Address: 1, "Name": 1 })
+
+# Select all documents where Designation is either "Developer" or "Tester":
+db.Employee.find({ Designation: { $in: ["Developer", "Tester"] })
+
+# Find all documents with an exact match on the Expertise array:
+db.Employee.find({ Expertise: ["Mongodb", "Mysql", "Cassandra"] })
+
+# Drop single documents where Designation is "Developer":
+# To delete documents matching the condition, use the deleteOne method:
+db.Employee.deleteOne({ Designation: "Developer" })
+

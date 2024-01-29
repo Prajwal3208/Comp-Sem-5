@@ -1,0 +1,113 @@
+Return the Total Salary per Company:
+
+// Map function
+var mapFunction1 = function () {
+  emit(this.CompanyName, this.Salary);
+};
+
+// Reduce function
+var reduceFunction1 = function (key, values) {
+  return Array.sum(values);
+};
+
+db.Employee.mapReduce(
+  mapFunction1,
+  reduceFunction1,
+  { out: "TotalSalaryPerCompany" }
+);
+
+Return the Total Salary of Company Name "TCS":
+
+// Map function
+var mapFunction2 = function () {
+  if (this.CompanyName === "TCS") {
+    emit("TCS", this.Salary);
+  }
+};
+
+// Reduce function (Same as for statement 1)
+
+db.Employee.mapReduce(
+  mapFunction2,
+  reduceFunction1,
+  { out: "TotalSalaryTCS" }
+);
+Return the Average Salary of Companies whose address is "Pune":
+
+// Map function
+var mapFunction3 = function () {
+  if (this.Address.PAddr === "Pune") {
+    emit(this.CompanyName, { salary: this.Salary, count: 1 });
+  }
+};
+
+// Reduce function
+var reduceFunction3 = function (key, values) {
+  var totalSalary = 0;
+  var totalCount = 0;
+  values.forEach(function (value) {
+    totalSalary += value.salary;
+    totalCount += value.count;
+  });
+  return { salary: totalSalary, count: totalCount };
+};
+
+// Finalize function to calculate average
+var finalizeFunction3 = function (key, reducedValue) {
+  return reducedValue.salary / reducedValue.count;
+};
+
+db.Employee.mapReduce(
+  mapFunction3,
+  reduceFunction3,
+  { out: "AvgSalaryPune", finalize: finalizeFunction3 }
+);
+Return the Total Salary for each Designation at Infosys:
+
+// Map function
+var mapFunction4 = function () {
+  if (this.CompanyName === "Infosys") {
+    emit(this.Designation, this.Salary);
+  }
+};
+
+// Reduce function (Same as for statement 1)
+
+db.Employee.mapReduce(
+  mapFunction4,
+  reduceFunction1,
+  { out: "TotalSalaryInfosys" }
+);
+Return total count for "State=AP":
+
+// Map function
+var mapFunction5 = function () {
+  emit(this.Address.State, 1);
+};
+
+// Reduce function
+var reduceFunction5 = function (key, values) {
+  return Array.sum(values);
+};
+
+db.Employee.mapReduce(
+  mapFunction5,
+  reduceFunction5,
+  { out: "TotalCountStateAP" }
+);
+Return Count for State "AP" and Age greater than 40:
+
+// Map function
+var mapFunction6 = function () {
+  if (this.Address.State === "AP" && this.Age > 40) {
+    emit(this.Address.State, 1);
+  }
+};
+
+// Reduce function (Same as for statement 5)
+
+db.Employee.mapReduce(
+  mapFunction6,
+  reduceFunction5,
+  { out: "CountStateAPAge40Plus" }
+);
