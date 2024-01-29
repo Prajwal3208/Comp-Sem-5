@@ -1,0 +1,198 @@
+class Process:
+    def __init__(self, process_id, burst_time, priority=None, arrival_time=None):
+        self.process_id = process_id
+        self.burst_time = burst_time
+        self.priority = priority
+        self.arrival_time = arrival_time
+        self.remaining_time = burst_time
+
+def fcfs(processes, burst_times):
+    n = len(processes)
+    waiting_time = [0]
+
+    for i in range(1, n):
+        waiting_time.append(waiting_time[i - 1] + burst_times[i - 1])
+
+    turnaround_time = [waiting_time[i] + burst_times[i] for i in range(n)]
+
+    avg_waiting_time = sum(waiting_time) / n
+    avg_turnaround_time = sum(turnaround_time) / n
+
+    print("\nFirst-Come, First-Served (FCFS) Scheduling:")
+    print("\nGantt Chart:")
+    for i in range(n):
+        print(f"+{'-' * burst_times[i]}", end="+")
+    print("+")
+
+    for i in range(n):
+        process_label = processes[i]
+        padding = (burst_times[i] - len(process_label)) // 2
+        print(f"|{' ' * padding}{process_label}{' ' * padding}", end="|")
+    print("\n", end="")
+
+    current_time = 0
+    for i in range(n):
+        print(f"{current_time:^{burst_times[i]}}", end="")
+        current_time += burst_times[i]
+
+        if i == n - 1:
+            print(f"{current_time:^{burst_times[i]}}", end="")
+    print("\n")
+
+    print("Process\tBurst Time\tWaiting Time\tTurnaround Time")
+    for i in range(n):
+        print(f"{processes[i]}\t\t\t{burst_times[i]}\t\t\t{waiting_time[i]}\t\t\t{turnaround_time[i]}")
+
+    print(f"\nAverage Waiting Time: {avg_waiting_time}")
+    print(f"Average Turnaround Time: {avg_turnaround_time}")
+
+
+def priority_scheduling(processes):
+    processes.sort(key=lambda x: x.priority)
+    waiting_time = [0]
+
+    for i in range(1, len(processes)):
+        waiting_time.append(waiting_time[i - 1] + processes[i - 1].burst_time)
+
+    turnaround_time = [waiting_time[i] + processes[i].burst_time for i in range(len(processes))]
+
+    avg_waiting_time = sum(waiting_time) / len(processes)
+    avg_turnaround_time = sum(turnaround_time) / len(processes)
+
+    print("\nPriority Scheduling:")
+    print("\nGantt Chart:")
+    for i in range(len(processes)):
+        print(f"+{'-' * processes[i].burst_time}", end="+")
+    print("+")
+
+    for i in range(len(processes)):
+        process_label = processes[i].process_id
+        padding = (processes[i].burst_time - len(str(process_label))) // 2
+        print(f"|{' ' * padding}{process_label}{' ' * padding}", end="|")
+    print("\n", end="")
+
+    current_time = 0
+    for i in range(len(processes)):
+        print(f"{current_time:^{processes[i].burst_time}}", end="")
+        current_time += processes[i].burst_time
+
+        if i == len(processes) - 1:
+            print(f"{current_time:^{processes[i].burst_time}}", end="")
+    print("\n")
+
+    print("Process\tBurst Time\tPriority\tWaiting Time\tTurnaround Time")
+    for i in range(len(processes)):
+        print(f"{processes[i].process_id}\t\t\t{processes[i].burst_time}\t\t\t{processes[i].priority}\t\t\t{waiting_time[i]}\t\t\t{turnaround_time[i]}")
+
+    print(f"\nAverage Waiting Time: {avg_waiting_time}")
+    print(f"Average Turnaround Time: {avg_turnaround_time}")
+
+# Modify the sjf_preemptive function
+# Modify the sjf_preemptive function
+def sjf_preemptive(processes):
+    time_chart = []
+    total_time = 0
+    processes.sort(key=lambda x: (x.arrival_time, x.burst_time))
+
+    while processes:
+        ready_processes = [p for p in processes if p.arrival_time <= total_time]
+
+        if not ready_processes:
+            total_time += 1
+            time_chart.append('|')
+            continue
+
+        shortest_job = min(ready_processes, key=lambda x: (x.remaining_time, x.process_id))
+        shortest_job.remaining_time -= 1
+        total_time += 1
+        time_chart.append(str(shortest_job.process_id))
+
+        if shortest_job.remaining_time == 0:
+            processes.remove(shortest_job)
+
+    print("\nShortest Job First (SJF) Preemptive Scheduling:")
+    print("Time Chart:", ''.join(time_chart))
+
+
+# Modify the round_robin function
+def round_robin(processes, burst_times, time_quantum):
+    time_chart = []
+    total_time = 0
+
+    while processes:
+        for i, process in enumerate(processes):
+            if process.remaining_time > 0:
+                if process.remaining_time <= time_quantum:
+                    total_time += process.remaining_time
+                    time_chart.append(str(process.process_id))
+                    process.remaining_time = 0
+                else:
+                    total_time += time_quantum
+                    time_chart.append(str(process.process_id))
+                    process.remaining_time -= time_quantum
+
+        processes = [p for p in processes if p.remaining_time > 0]
+
+    print("\nRound Robin Scheduling:")
+    print("Time Chart:", ''.join(time_chart))
+
+
+
+if __name__ == "__main__":
+    while True:
+        print("\nChoose a scheduling algorithm:")
+        print("1. First-Come, First-Served (FCFS)")
+        print("2. Priority Scheduling")
+        print("3. Shortest Job First (SJF) Preemptive")
+        print("4. Round Robin Scheduling")
+        print("5. Exit")
+
+        choice = int(input("Enter the number of your choice: "))
+
+        if choice == 1:
+            num_processes = int(input("Enter the number of processes: "))
+            processes_fcfs = []
+            for i in range(num_processes):
+                process_id = input(f"Enter the ID of Process {i + 1}: ")
+                burst_time = int(input(f"Enter the burst time for Process {i + 1}: "))
+                processes_fcfs.append(process_id)
+            fcfs(processes_fcfs, [burst_time for _ in processes_fcfs])
+
+        elif choice == 2:
+            num_processes = int(input("Enter the number of processes: "))
+            processes_priority = []
+            for i in range(num_processes):
+                process_id = input(f"Enter the ID of Process {i + 1}: ")
+                burst_time = int(input(f"Enter the burst time for Process {i + 1}: "))
+                priority = int(input(f"Enter the priority for Process {i + 1}: "))
+                processes_priority.append(Process(process_id, burst_time, priority))
+            priority_scheduling(processes_priority)
+
+        elif choice == 3:
+            num_processes = int(input("Enter the number of processes: "))
+            processes_sjf = []
+            for i in range(num_processes):
+                process_id = input(f"Enter the ID of Process {i + 1}: ")
+                burst_time = int(input(f"Enter the burst time for Process {i + 1}: "))
+                arrival_time = int(input(f"Enter the arrival time for Process {i + 1}: "))
+                processes_sjf.append(Process(process_id, burst_time, arrival_time=arrival_time))
+            sjf_preemptive(processes_sjf)
+
+        elif choice == 4:
+            num_processes = int(input("Enter the number of processes: "))
+            processes_rr = []
+            burst_times_rr = []
+            for i in range(num_processes):
+                process_id = input(f"Enter the ID of Process {i + 1}: ")
+                burst_time = int(input(f"Enter the burst time for Process {i + 1}: "))
+                processes_rr.append(Process(process_id, burst_time))
+                burst_times_rr.append(burst_time)
+            time_quantum = int(input("Enter the time quantum for Round Robin: "))
+            round_robin(processes_rr, burst_times_rr, time_quantum)
+
+        elif choice == 5:
+            print("Exiting the program.")
+            break
+
+        else:
+            print("Invalid choice. Please choose a number between 1 and 5.")

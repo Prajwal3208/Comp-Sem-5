@@ -1,0 +1,114 @@
+class Page:
+    def __init__(self, page_number):
+        self.page_number = page_number
+        self.referenced = 0
+
+def lru(pages, page_frames):
+    page_table = {}
+    page_order = []
+
+    page_faults = 0
+    page_hits = 0
+
+    for page_number in pages:
+        if page_number in page_table:
+            page_hits += 1
+            page_table[page_number].referenced += 1
+            # Move the accessed page to the end to represent it's the most recently used
+            page_order.remove(page_table[page_number])
+            page_order.append(page_table[page_number])
+        else:
+            page_faults += 1
+
+            if len(page_table) == page_frames:
+                # Remove the least recently used page (at the front of the list)
+                removed_page = page_order.pop(0)
+                del page_table[removed_page.page_number]
+
+            new_page = Page(page_number)
+            page_table[page_number] = new_page
+            page_order.append(new_page)
+
+        print(f"LRU Cache after inserting page {page_number}: {[page.page_number for page in page_order]}")
+        print(f"LRU Hits: {page_hits}, LRU Faults: {page_faults}\n")
+
+    total_hits_and_faults = {"LRU Hits": page_hits, "LRU Faults": page_faults}
+    return total_hits_and_faults
+
+def fifo(pages, page_frames):
+    page_table = {}
+    page_order = []
+
+    page_faults = 0
+    page_hits = 0
+
+    for page_number in pages:
+        if page_number in page_table:
+            page_hits += 1
+            page_table[page_number].referenced += 1
+        else:
+            page_faults += 1
+
+            if len(page_table) == page_frames:
+                removed_page = page_order.pop(0)
+                del page_table[removed_page.page_number]
+
+            new_page = Page(page_number)
+            page_table[page_number] = new_page
+            page_order.append(new_page)
+
+        print(f"FIFO Cache after inserting page {page_number}: {[page.page_number for page in page_order]}")
+        print(f"FIFO Hits: {page_hits}, FIFO Faults: {page_faults}\n")
+
+    total_hits_and_faults = {"FIFO Hits": page_hits, "FIFO Faults": page_faults}
+    return total_hits_and_faults
+
+def optimal(pages, page_frames):
+    page_table = {}
+    page_order = []
+
+    page_faults = 0
+    page_hits = 0
+
+    for i, page_number in enumerate(pages):
+        if page_number in page_table:
+            page_hits += 1
+        else:
+            page_faults += 1
+
+            if len(page_table) == page_frames:
+                # Find the page in page frames with the maximum index of the next reference
+                future_references = [pages[j] for j in range(i + 1, len(pages))]
+                next_occurrences = {page: future_references.index(page) if page in future_references else len(pages) for page in page_table}
+                page_to_replace = max(next_occurrences, key=next_occurrences.get)
+
+                removed_page = page_table[page_to_replace]
+                del page_table[page_to_replace]
+                page_order.remove(removed_page)
+
+            new_page = Page(page_number)
+            page_table[page_number] = new_page
+            page_order.append(new_page)
+
+        print(f"Optimal Cache after inserting page {page_number}: {[page.page_number for page in page_order]}")
+        print(f"Optimal Hits: {page_hits}, Optimal Faults: {page_faults}\n")
+
+    total_hits_and_faults = {"Optimal Hits": page_hits, "Optimal Faults": page_faults}
+    return total_hits_and_faults
+
+if __name__ == "__main__":
+    pages_input = input("Enter the sequence of pages (space-separated): ")
+    pages = [int(page) for page in pages_input.split()]
+
+    page_frames = int(input("Enter the number of page frames: "))
+
+    total_lru_hits_and_faults = lru(pages, page_frames)
+    total_fifo_hits_and_faults = fifo(pages, page_frames)
+    total_optimal_hits_and_faults = optimal(pages, page_frames)
+
+    print(f"\nTotal LRU Hits: {total_lru_hits_and_faults['LRU Hits']}, Total LRU Faults: {total_lru_hits_and_faults['LRU Faults']}")
+    print(f"Total FIFO Hits: {total_fifo_hits_and_faults['FIFO Hits']}, Total FIFO Faults: {total_fifo_hits_and_faults['FIFO Faults']}")
+    print(f"Total Optimal Hits: {total_optimal_hits_and_faults['Optimal Hits']}, Total Optimal Faults: {total_optimal_hits_and_faults['Optimal Faults']}")
+    print(f"LRU Hit Ratio: {total_lru_hits_and_faults['LRU Hits'] / len(pages)}")
+    print(f"FIFO Hit Ratio: {total_fifo_hits_and_faults['FIFO Hits'] / len(pages)}")
+    print(f"Optimal Hit Ratio: {total_optimal_hits_and_faults['Optimal Hits'] / len(pages)}")
