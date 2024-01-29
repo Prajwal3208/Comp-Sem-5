@@ -1,0 +1,55 @@
+-- Create Library_Audit table if not exists
+CREATE TABLE Library_Audit (
+    action_type VARCHAR2(10),
+    old_book_id NUMBER,
+    old_book_title VARCHAR2(255),
+    old_author VARCHAR2(100),
+    old_published_date DATE
+);
+
+-- Create or replace the Library table
+CREATE TABLE Library (
+    book_id NUMBER PRIMARY KEY,
+    book_title VARCHAR2(255),
+    author VARCHAR2(100),
+    published_date DATE
+);
+
+-- Create or replace the BEFORE INSERT trigger
+CREATE OR REPLACE TRIGGER before_insert_trigger
+BEFORE INSERT ON Library
+FOR EACH ROW
+BEGIN
+    -- Set default values for new records
+    IF :new.book_title IS NULL THEN
+        :new.book_title := 'Unknown';
+    END IF;
+    IF :new.author IS NULL THEN
+        :new.author := 'Unknown';
+    END IF;
+
+    -- You can add additional logic or validations here if needed
+END;
+/
+
+-- Create or replace the AFTER DELETE trigger
+CREATE OR REPLACE TRIGGER after_delete_trigger
+AFTER DELETE ON Library
+FOR EACH ROW
+BEGIN
+    -- Insert the old values into Library_Audit table
+    INSERT INTO Library_Audit (
+        action_type,
+        old_book_id,
+        old_book_title,
+        old_author,
+        old_published_date
+    ) VALUES (
+        'DELETE',
+        :old.book_id,
+        :old.book_title,
+        :old.author,
+        :old.published_date
+    );
+END;
+/

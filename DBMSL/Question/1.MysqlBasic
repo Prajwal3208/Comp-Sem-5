@@ -1,0 +1,78 @@
+-- Create tables
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    balance DECIMAL NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(255) PRIMARY KEY,
+    branch_city VARCHAR(255) NOT NULL,
+    assets DECIMAL NOT NULL
+);
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(255) PRIMARY KEY,
+    cust_street VARCHAR(255) NOT NULL,
+    cust_city VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(255),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    amount DECIMAL NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(255),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Task 1 Query
+SELECT DISTINCT branch_name FROM Loan;
+
+Task 2:
+Find all loan numbers for loans made at „Wadia College‟ Branch with loan amount > 12000.
+
+SELECT loan_no
+FROM Loan
+WHERE branch_name = 'Wadia College' AND amount > 12000;
+
+
+Task 3:
+Find all customers who have a loan from the bank. Find their names, loan_no, and loan amount.
+
+SELECT C.cust_name, B.loan_no, L.amount
+FROM Customer C
+JOIN Borrower B ON C.cust_name = B.cust_name
+JOIN Loan L ON B.loan_no = L.loan_no;
+
+
+Task 4:
+List all customers in alphabetical order who have a loan from „Wadia College‟ branch.
+
+SELECT C.cust_name
+FROM Customer C
+JOIN Borrower B ON C.cust_name = B.cust_name
+JOIN Loan L ON B.loan_no = L.loan_no
+WHERE L.branch_name = 'Wadia College'
+ORDER BY C.cust_name;
+
+
+Task 5:
+Display distinct cities of branch.
+
+SELECT DISTINCT branch_city FROM Branch;

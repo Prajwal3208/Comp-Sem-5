@@ -1,0 +1,35 @@
+-- Create the EMP table
+CREATE TABLE EMP (
+    Emp_no NUMBER PRIMARY KEY,
+    Emp_name VARCHAR2(100),
+    Emp_salary NUMBER
+);
+
+-- Create the TRACKING table
+CREATE TABLE TRACKING (
+    Emp_no NUMBER,
+    Emp_salary NUMBER
+);
+
+-- Create the trigger
+CREATE OR REPLACE TRIGGER check_salary_trigger
+AFTER INSERT OR UPDATE OR DELETE
+ON EMP
+FOR EACH ROW
+DECLARE
+    v_new_salary NUMBER;
+BEGIN
+    -- Check if the trigger is initiated due to INSERT or UPDATE operation
+    IF INSERTING OR UPDATING THEN
+        -- Check if the new salary is less than Rs. 50,000/-
+        IF :NEW.Emp_salary < 50000 THEN
+            -- Insert the new values into the TRACKING table
+            INSERT INTO TRACKING (Emp_no, Emp_salary)
+            VALUES (:NEW.Emp_no, :NEW.Emp_salary);
+
+            -- Display a message indicating the salary is less than Rs. 50,000/-
+            DBMS_OUTPUT.PUT_LINE('Salary less than Rs. 50,000/-. Tracking the change.');
+        END IF;
+    END IF;
+END;
+/

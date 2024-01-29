@@ -1,0 +1,58 @@
+-- Create tables with constraints
+CREATE TABLE Companies (
+    comp_id INT PRIMARY KEY,
+    name VARCHAR(255),
+    cost DECIMAL(15, 2),
+    year INT
+);
+
+CREATE TABLE Orders (
+    comp_id INT,
+    domain VARCHAR(255),
+    quantity INT,
+    PRIMARY KEY (comp_id, domain),
+    FOREIGN KEY (comp_id) REFERENCES Companies(comp_id)
+);
+
+-- Insert data into tables
+-- Add data as needed
+
+-- Queries
+-- 1. Find names, costs, domains, and quantities for companies using inner join.
+SELECT C.name, C.cost, O.domain, O.quantity
+FROM Companies C
+INNER JOIN Orders O ON C.comp_id = O.comp_id;
+
+-- 2. Find names, costs, domains, and quantities for companies using left outer join.
+SELECT C.name, C.cost, O.domain, O.quantity
+FROM Companies C
+LEFT OUTER JOIN Orders O ON C.comp_id = O.comp_id;
+
+-- 3. Find names, costs, domains, and quantities for companies using right outer join.
+SELECT C.name, C.cost, O.domain, O.quantity
+FROM Companies C
+RIGHT OUTER JOIN Orders O ON C.comp_id = O.comp_id;
+
+-- 4. Find names, costs, domains, and quantities for companies using Union operator.
+SELECT name, cost, NULL AS domain, NULL AS quantity FROM Companies
+UNION
+SELECT C.name, C.cost, O.domain, O.quantity
+FROM Companies C
+INNER JOIN Orders O ON C.comp_id = O.comp_id;
+
+-- 5. Create View View1 by selecting both tables to show company name and quantities.
+CREATE VIEW View1 AS
+SELECT C.name AS company_name, O.quantity
+FROM Companies C
+LEFT JOIN Orders O ON C.comp_id = O.comp_id;
+
+-- 6. Create View View2 by selecting any two columns and perform insert, update, delete operations.
+CREATE VIEW View2 AS
+SELECT comp_id, name
+FROM Companies;
+
+-- Perform operations on View2 (insert, update, delete) as needed.
+
+-- 7. Display content of View1, View2.
+SELECT * FROM View1;
+SELECT * FROM View2;

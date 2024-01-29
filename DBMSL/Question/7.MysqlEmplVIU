@@ -1,0 +1,90 @@
+-- Create tables with constraints
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    balance DECIMAL(15, 2)
+);
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(255) PRIMARY KEY,
+    branch_city VARCHAR(255),
+    assets DECIMAL(15, 2)
+);
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(255) PRIMARY KEY,
+    cust_street VARCHAR(255),
+    cust_city VARCHAR(255)
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(255),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(255),
+    amount DECIMAL(15, 2),
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(255),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Insert data into tables
+-- Add data as needed
+
+-- Queries
+-- 1. Create a View1 to display List all customers in alphabetical
+-- order who have a loan from Pune_Station branch.
+CREATE VIEW View1 AS
+SELECT C.cust_name, C.cust_street, C.cust_city
+FROM Customer C
+JOIN Borrower B ON C.cust_name = B.cust_name
+JOIN Loan L ON B.loan_no = L.loan_no
+WHERE L.branch_name = 'Pune_Station'
+ORDER BY C.cust_name;
+
+-- 2. Create View2 on the branch table by selecting any two columns and
+-- perform insert update delete operations.
+CREATE VIEW View2 AS
+SELECT branch_name, branch_city
+FROM Branch;
+
+-- Perform operations on View2 (insert, update, delete) as needed.
+
+-- 3. Create View3 on the borrower and depositor table by selecting any
+-- one column from each table and perform insert update delete operations.
+CREATE VIEW View3 AS
+SELECT cust_name
+FROM Borrower
+UNION
+SELECT cust_name
+FROM Depositor;
+
+-- Perform operations on View3 (insert, update, delete) as needed.
+
+-- 4. Create Union of left and right joint for all customers who
+-- have an account or loan or both at the bank.
+CREATE VIEW UnionView AS
+SELECT C.cust_name, A.Acc_no, L.loan_no
+FROM Customer C
+LEFT JOIN Depositor D ON C.cust_name = D.cust_name
+LEFT JOIN Account A ON D.acc_no = A.Acc_no
+LEFT JOIN Borrower B ON C.cust_name = B.cust_name
+LEFT JOIN Loan L ON B.loan_no = L.loan_no;
+
+-- 5. Create Simple and Unique index on the Customer table.
+CREATE UNIQUE INDEX idx_cust_name ON Customer(cust_name);
+
+-- 6. Display index Information.
+SHOW INDEX FROM Customer;

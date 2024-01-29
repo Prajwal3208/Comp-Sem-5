@@ -1,0 +1,23 @@
+DECLARE
+    CURSOR c_new_roll_call IS
+        SELECT * FROM N_RollCall;
+
+    v_roll_no    NUMBER;
+    v_name       VARCHAR2(50);
+    v_status     VARCHAR2(1);
+BEGIN
+    OPEN c_new_roll_call;
+    LOOP
+        FETCH c_new_roll_call INTO v_roll_no, v_name, v_status;
+        EXIT WHEN c_new_roll_call%NOTFOUND;
+
+        -- Check if the record already exists in O_RollCall
+        IF NOT EXISTS (SELECT 1 FROM O_RollCall WHERE Roll_no = v_roll_no) THEN
+            -- If not exists, insert the record into O_RollCall
+            INSERT INTO O_RollCall (Roll_no, Name, Status)
+            VALUES (v_roll_no, v_name, v_status);
+        END IF;
+    END LOOP;
+    CLOSE c_new_roll_call;
+END;
+/

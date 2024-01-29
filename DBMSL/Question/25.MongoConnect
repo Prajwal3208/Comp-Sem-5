@@ -1,0 +1,68 @@
+pip install pymongo
+import pymongo
+
+# MongoDB connection details
+mongo_host = "localhost"
+mongo_port = 27017
+database_name = "sample_database"
+collection_name = "sample_collection"
+
+# Connect to MongoDB
+client = pymongo.MongoClient(mongo_host, mongo_port)
+database = client[database_name]
+collection = database[collection_name]
+
+# Function to add a document to the collection
+def add_document(document):
+    result = collection.insert_one(document)
+    print(f"Document added with ID: {result.inserted_id}")
+
+# Function to read all documents from the collection
+def read_all_documents():
+    documents = collection.find()
+    for document in documents:
+        print(document)
+
+# Function to update a document in the collection
+def update_document(query, new_values):
+    result = collection.update_one(query, {"$set": new_values})
+    print(f"Matched {result.matched_count} document(s) and modified {result.modified_count} document(s)")
+
+# Function to delete a document from the collection
+def delete_document(query):
+    result = collection.delete_one(query)
+    print(f"Deleted {result.deleted_count} document(s)")
+
+# Sample document
+sample_document = {
+    "name": "John Doe",
+    "age": 30,
+    "city": "New York"
+}
+
+# Add a document
+add_document(sample_document)
+
+# Read all documents
+print("\nAll Documents:")
+read_all_documents()
+
+# Update a document
+update_query = {"name": "John Doe"}
+new_values = {"$set": {"age": 31}}
+update_document(update_query, new_values)
+
+# Read all documents after update
+print("\nAll Documents after Update:")
+read_all_documents()
+
+# Delete a document
+delete_query = {"name": "John Doe"}
+delete_document(delete_query)
+
+# Read all documents after delete
+print("\nAll Documents after Delete:")
+read_all_documents()
+
+# Close the MongoDB connection
+client.close()

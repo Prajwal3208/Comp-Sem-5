@@ -1,0 +1,70 @@
+-- Create tables
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    balance DECIMAL NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(255) PRIMARY KEY,
+    branch_city VARCHAR(255) NOT NULL,
+    assets DECIMAL NOT NULL
+);
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(255) PRIMARY KEY,
+    cust_street VARCHAR(255) NOT NULL,
+    cust_city VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(255),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    amount DECIMAL NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(255),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Task 1: Find the branches where average account balance > 15000.
+SELECT A.branch_name
+FROM Account A
+GROUP BY A.branch_name
+HAVING AVG(A.balance) > 15000;
+
+-- Task 2: Find number of tuples in customer relation.
+SELECT COUNT(*) AS num_tuples
+FROM Customer;
+
+-- Task 3: Calculate total loan amount given by bank.
+SELECT SUM(amount) AS total_loan_amount
+FROM Loan;
+
+-- Task 4: Delete all loans with loan amount between 1300 and 1500.
+DELETE FROM Loan
+WHERE amount BETWEEN 1300 AND 1500;
+
+-- Task 5: Find the average account balance at each branch.
+SELECT branch_name, AVG(balance) AS avg_balance
+FROM Account
+GROUP BY branch_name;
+
+-- Task 6: Find name of Customer and city where customer name starts with Letter P.
+SELECT cust_name, cust_city
+FROM Customer
+WHERE cust_name LIKE 'P%';

@@ -1,0 +1,42 @@
+DECLARE
+    v_roll_no    NUMBER;
+    v_book_name  VARCHAR2(50);
+    v_issue_date DATE;
+    v_status     CHAR(1);
+    v_fine_amt   NUMBER;
+    v_days_diff  NUMBER;
+BEGIN
+    -- Accepting input from the user
+    v_roll_no := &roll_no;  -- Use substitution variable for roll_no
+    v_book_name := '&book_name';  -- Use substitution variable for book_name
+    v_issue_date := SYSDATE;  -- Assuming the issue date is the current date
+    v_status := 'R';  -- Assuming the book is being submitted
+    
+    -- Calculate the number of days since the date of issue
+    v_days_diff := TRUNC(SYSDATE) - TRUNC(v_issue_date);
+
+    -- Check conditions and calculate fine amount
+    IF v_days_diff BETWEEN 15 AND 30 THEN
+        v_fine_amt := 5 * (v_days_diff - 14);
+    ELSIF v_days_diff > 30 THEN
+        v_fine_amt := 50 * (v_days_diff - 30);
+    ELSE
+        v_fine_amt := 0;  -- No fine if within the first 15 days
+    END IF;
+
+    -- Change status to 'R' after submitting the book
+    v_status := 'R';
+
+    -- Insert details into the Fine table if fine condition is true
+    IF v_fine_amt > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (v_roll_no, SYSDATE, v_fine_amt);
+    END IF;
+
+    -- Display the results
+    DBMS_OUTPUT.PUT_LINE('Roll No: ' || v_roll_no);
+    DBMS_OUTPUT.PUT_LINE('Book Name: ' || v_book_name);
+    DBMS_OUTPUT.PUT_LINE('Fine Amount: Rs. ' || v_fine_amt);
+    DBMS_OUTPUT.PUT_LINE('Status: ' || v_status);
+END;
+/

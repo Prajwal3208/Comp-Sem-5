@@ -1,0 +1,60 @@
+-- Create emp table
+CREATE TABLE emp (
+    emp_no NUMBER PRIMARY KEY,
+    salary NUMBER
+);
+
+-- Create increment_salary table
+CREATE TABLE increment_salary (
+    emp_no NUMBER,
+    increment_salary NUMBER,
+    FOREIGN KEY (emp_no) REFERENCES emp(emp_no)
+);
+
+-- Execute the PL/SQL block
+DECLARE
+    v_avg_salary NUMBER;
+    v_increment_percentage CONSTANT NUMBER := 0.1;  -- 10%
+
+BEGIN
+    -- Insert some sample data into emp table
+    INSERT INTO emp VALUES (1, 50000);
+    INSERT INTO emp VALUES (2, 60000);
+    INSERT INTO emp VALUES (3, 70000);
+
+    -- Calculate the average salary of the organization
+    SELECT AVG(salary) INTO v_avg_salary FROM emp;
+
+    -- Update salary for employees with salary less than the average
+    FOR emp_rec IN (SELECT emp_no, salary FROM emp WHERE salary < v_avg_salary) LOOP
+        -- Calculate the salary increment
+        DECLARE
+            v_increment_amount NUMBER;
+        BEGIN
+            v_increment_amount := emp_rec.salary * v_increment_percentage;
+
+            -- Update employee salary
+            UPDATE emp
+            SET salary = salary + v_increment_amount
+            WHERE emp_no = emp_rec.emp_no;
+
+            -- Insert record into increment_salary table
+            INSERT INTO increment_salary (emp_no, increment_salary)
+            VALUES (emp_rec.emp_no, v_increment_amount);
+
+            DBMS_OUTPUT.PUT_LINE('Salary increased for emp_no ' || emp_rec.emp_no || ' by ' || v_increment_amount);
+        EXCEPTION
+            WHEN OTHERS THEN
+                DBMS_OUTPUT.PUT_LINE('Error updating salary for emp_no ' || emp_rec.emp_no || ': ' || SQLERRM);
+        END;
+    END FOR;
+
+    COMMIT; -- Commit the changes
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No employees found in the emp table.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/

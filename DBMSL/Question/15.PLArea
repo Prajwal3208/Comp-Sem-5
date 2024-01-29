@@ -1,0 +1,24 @@
+-- Create a table to store radius and corresponding area
+CREATE TABLE areas (
+    radius NUMBER,
+    area NUMBER
+);
+
+-- PL/SQL code block to calculate and store the area of a circle
+DECLARE
+    r NUMBER;
+    a NUMBER;
+BEGIN
+    -- Loop through the range of radius values
+    FOR r IN 5..9 LOOP
+        -- Calculate the area of the circle
+        a := 3.14159 * POWER(r, 2);
+
+        -- Insert the radius and corresponding area into the table
+        INSERT INTO areas (radius, area) VALUES (r, a);
+    END LOOP;
+    
+    -- Commit the changes
+    COMMIT;
+END;
+/

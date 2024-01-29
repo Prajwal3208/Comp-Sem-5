@@ -1,0 +1,72 @@
+-- Create tables
+CREATE TABLE Account (
+    Acc_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    balance DECIMAL NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Branch (
+    branch_name VARCHAR(255) PRIMARY KEY,
+    branch_city VARCHAR(255) NOT NULL,
+    assets DECIMAL NOT NULL
+);
+
+CREATE TABLE Customer (
+    cust_name VARCHAR(255) PRIMARY KEY,
+    cust_street VARCHAR(255) NOT NULL,
+    cust_city VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Depositor (
+    cust_name VARCHAR(255),
+    acc_no INT,
+    PRIMARY KEY (cust_name, acc_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (acc_no) REFERENCES Account(Acc_no)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch_name VARCHAR(255) NOT NULL,
+    amount DECIMAL NOT NULL,
+    FOREIGN KEY (branch_name) REFERENCES Branch(branch_name)
+);
+
+CREATE TABLE Borrower (
+    cust_name VARCHAR(255),
+    loan_no INT,
+    PRIMARY KEY (cust_name, loan_no),
+    FOREIGN KEY (cust_name) REFERENCES Customer(cust_name),
+    FOREIGN KEY (loan_no) REFERENCES Loan(loan_no)
+);
+
+-- Task 1: Find all customers who have both account and loan at bank.
+SELECT C.cust_name
+FROM Customer C
+JOIN Depositor D ON C.cust_name = D.cust_name
+JOIN Borrower B ON C.cust_name = B.cust_name;
+
+-- Task 2: Find all customers who have an account or loan or both at bank.
+SELECT DISTINCT C.cust_name
+FROM Customer C
+LEFT JOIN Depositor D ON C.cust_name = D.cust_name
+LEFT JOIN Borrower B ON C.cust_name = B.cust_name
+WHERE D.cust_name IS NOT NULL OR B.cust_name IS NOT NULL;
+
+-- Task 3: Find all customers who have account but no loan at the bank.
+SELECT C.cust_name
+FROM Customer C
+JOIN Depositor D ON C.cust_name = D.cust_name
+LEFT JOIN Borrower B ON C.cust_name = B.cust_name
+WHERE B.cust_name IS NULL;
+
+-- Task 4: Find average account balance at 'Wadia College' branch.
+SELECT AVG(A.balance) AS avg_balance
+FROM Account A
+WHERE A.branch_name = 'Wadia College';
+
+-- Task 5: Find no. of depositors at each branch.
+SELECT D.branch_name, COUNT(DISTINCT D.acc_no) AS num_depositors
+FROM Depositor D
+GROUP BY D.branch_name;
